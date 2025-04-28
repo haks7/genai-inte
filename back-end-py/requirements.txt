@@ -1,0 +1,9 @@
+flask
+flask-cors
+python-dotenv
+openai
+azure-storage-blob
+requests
+azure-identity
+azure-ai-projects
+waitress
