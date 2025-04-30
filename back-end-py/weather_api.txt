@@ -1,0 +1,4 @@
+1012,Amsterdam,5,Cloudy
+3000,Melbourne,15,Sunny
+4000,Brisbane,30,Hot
+5000,Adelaide,10,Rainy

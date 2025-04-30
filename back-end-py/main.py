@@ -11,6 +11,7 @@ from weather_agents import (
 )
 
 import openai
+from waitress import serve
 import requests
 
 # Load environment variables
@@ -50,7 +51,10 @@ def extract_postal_code(query):
     match = re.search(r'\b\d{4}\b', query)  # Matches a 4-digit postal code
     return match.group(0) if match else None
 
-@app.route('/api/query/', methods=['POST'])
+@app.route('/')
+def home():
+    return "Flask app is running!"
+
 @app.route('/api/query', methods=['POST'])
 def handle_query():
     """Handle weather-related queries from the frontend."""
@@ -145,7 +149,10 @@ def handle_query():
         "carSeatAdjustment": adjustment
     })
 
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Health check endpoint."""
+    return jsonify({"status": "healthy"}), 200  
 
 if __name__ == "__main__":
-    from waitress import serve
-    serve(app, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
