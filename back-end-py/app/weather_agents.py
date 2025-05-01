@@ -33,7 +33,7 @@ def read_weather_data_from_storage():
         weather_data = {}
         for line in lines:
             postal_code, city, temperature, condition = line.split(",")
-            weather_data[postal_code.strip()] = {
+            weather_data[postal_code.strip()] = {  # Use postal_code as the key
                 "city": city.strip(),
                 "temperature": float(temperature.strip()),
                 "condition": condition.strip()

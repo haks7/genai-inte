@@ -4,6 +4,7 @@ import os
 
 class FoundryAIAgent:
     def __init__(self, source):
+        """Initialize the Foundry AI Agent with required configurations."""
         self.source = source
         self.project_client = AIProjectClient.from_connection_string(
             credential=DefaultAzureCredential(),
@@ -12,25 +13,19 @@ class FoundryAIAgent:
         self.agent_id = os.getenv("AZUREML_AGENT_ID")
         self.thread_id = os.getenv("AZUREML_THREAD_ID")
 
-    def make_decision(self, prompt, city_weather_data):
-        """Use Microsoft Foundry AI Project to make a decision based on a prompt."""
+    def make_decision(self, prompt, key_phrases, city_weather):
+        """Use Microsoft Foundry AI Project to make a decision based on user query and key phrases."""
         try:
-            # Send the user prompt as a message
+            # Combine the user query and key phrases into a single message
+            combined_prompt = f"{prompt}\nKey Phrases: {', '.join(key_phrases)}"
+            combined_prompt += f"\nCity Weather: {city_weather}"
 
-            # Optionally attach weather data if supported
-            if city_weather_data:
-                self.project_client.agents.create_message(
-                    thread_id=self.thread_id,
-                    role="user",
-                    content=prompt,
-                #      attachments=[
-                #     {
-                #         "type": "application/json",
-                #         "value": city_weather_data,
-                #         "tools": []  # Add an empty tools array if required
-                #     }
-                # ]
-                )
+            # Send the combined prompt as a message
+            self.project_client.agents.create_message(
+                thread_id=self.thread_id,
+                role="user",
+                content=combined_prompt
+            )
 
             # Process the run
             self.project_client.agents.create_and_process_run(
@@ -51,3 +46,13 @@ class FoundryAIAgent:
         except Exception as e:
             print(f"Error using Microsoft Foundry AI Project: {e}")
             return f"Error: Unable to process the decision due to {str(e)}."
+        
+# When to Use Each Approach
+# Use AIProjectClient When:
+    # You need to manage workflows involving multiple AI agents.
+    # You want to attach additional data (e.g., weather data) to prompts for context-aware decision-making.
+    # You are working with Foundry AI or other project-based Azure AI services.
+# Use REST API for Text Analytics When:
+    # You need to perform specific text analysis tasks, such as sentiment analysis or key phrase extraction.
+    # You want a lightweight and straightforward integration for analyzing text.
+    # You do not need to manage threads or workflows.

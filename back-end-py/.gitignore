@@ -3,5 +3,6 @@
 # dependencies
 /.venv
 .env
-./__pycache__
-__pycache__/weather_agents.cpython-311.pyc
+./app/__pycache__/
+../.vscode/
+./app/test_semantic_search.py
