@@ -4,6 +4,8 @@ from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 from semantic_kernel.prompt_template import PromptTemplateConfig
 from dotenv import load_dotenv
 import os
+import os
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -12,6 +14,7 @@ load_dotenv()
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
 AZURE_OPENAI_CHAT_DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_MODEL")
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
 # Initialize Semantic Kernel
 kernel = Kernel()
@@ -47,9 +50,13 @@ def create_reasoning_function(prompt_template: str, function_name: str, plugin_n
         prompt_template_config=prompt_template_config,
     )
 
-# Run the reasoning function
+# Define a function to fetch real-time weather data
 async def run_reasoning(reasoning_prompt, user_query, key_phrases, weather_data):
-    """Run the reasoning function asynchronously with a dynamic prompt."""
+    """Run the reasoning function asynchronously with real-time weather data."""
+    # Fetch real-time weather data
+    if not weather_data:
+        raise ValueError("Unable to fetch weather data. Please check the city or postal code.")
+
     # Create the reasoning function dynamically
     reasoning_function = create_reasoning_function(
         prompt_template=reasoning_prompt,
