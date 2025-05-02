@@ -1,13 +1,25 @@
 import re
 
-def adjust_car_seat_heating(temperature):
-    """Adjust the car seat heating system based on temperature."""
-    if temperature < 10:
-        return "Heating ON"
-    elif 10 <= temperature <= 25:
-        return "Heating OFF"
+def adjust_car_seat_heating(temperature, foundry_decision):
+    """Adjust car seat heating based on temperature and Foundry decision."""
+    # Normalize the decision to lowercase for easier keyword matching
+    decision_lower = foundry_decision.lower()
+
+    # Default to relying on temperature if the decision is unclear
+    if "increase heating" in decision_lower or "too cold" in decision_lower or temperature < 10:
+        return "Increase seat heating to high." if temperature < 10 else "Increase seat heating to medium."
+    elif "decrease heating" in decision_lower or "too warm" in decision_lower or temperature > 25:
+        return "Decrease seat heating to low."
+    elif "no adjustment" in decision_lower or "optimal" in decision_lower:
+        return "No adjustment needed based on Foundry decision."
     else:
-        return "Cooling ON"
+        # Default case: rely on temperature
+        return (
+            "Increase seat heating to high based on temperature." if temperature < 10 else
+            "Increase seat heating to medium based on temperature." if 10 <= temperature < 20 else
+            "Decrease seat heating to low based on temperature." if temperature > 25 else
+            "No heating adjustment needed based on temperature."
+        )
 
 def extract_postal_code(query):
     """Extract postal code from the user query."""

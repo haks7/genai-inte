@@ -55,7 +55,11 @@ def vehicle_optimization():
         foundry_decision = foundry_AIProjectClient.make_decision(user_query, key_phrases, city_weather)
         print(f"Decision: {foundry_decision}")
 
-        # Step 5: Use Semantic Kernel for reasoning
+        # Step 5: Adjust car seat heating based on foundry decision and weather data
+        adjustment = utils.adjust_car_seat_heating(city_weather["temperature"], foundry_decision)
+        print(f"Car seat adjustment based on Foundry decision: {adjustment}")
+
+        # Step 6: Use Semantic Kernel for reasoning
         reasoning_prompt = f"""
         The user query is: {{$input}}.
         The extracted key phrases are: {', '.join(key_phrases)}.
@@ -68,9 +72,6 @@ def vehicle_optimization():
             key_phrases=key_phrases,
             weather_data=city_weather,
         ))
-
-        # Step 6: Adjust car seat heating
-        adjustment = utils.adjust_car_seat_heating(city_weather["temperature"])
 
         # Return the results as a JSON response
         return jsonify({

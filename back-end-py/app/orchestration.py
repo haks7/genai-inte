@@ -143,3 +143,27 @@ def orchestrate_security(face_id, door_status, motion_status, fingerprint_status
     except Exception as e:
         print(f"Error in orchestrate_security: {e}")
         raise
+
+
+# 1. Orchestration Overview
+# The orchestrate_security function integrates multiple components to secure a vehicle based on various inputs. Here's the flow:
+
+# Face Recognition:
+
+# Uses recognize_face to determine if the face is authorized or unauthorized.
+# This is a binary decision-making step.
+# IoT Data Simulation:
+
+# Uses simulate_iot_data to simulate the status of IoT sensors (door, motion, fingerprint).
+# This provides additional context for decision-making.
+# Semantic Kernel Reasoning:
+
+# Combines the face recognition result and IoT data into a reasoning prompt.
+# The Semantic Kernel processes this prompt to classify the threat level (low, medium, high) and recommend actions (e.g., lock vehicle, send email).
+# This step introduces contextual reasoning and decision-making capabilities.
+# Action Execution:
+
+# Based on the Semantic Kernel's response, actions like locking the vehicle, triggering an alarm, or sending an email are executed.
+# Fallback Logic:
+
+# If the Semantic Kernel response is incorrect or incomplete, fallback logic adjusts the threat level and actions based on predefined rules.
