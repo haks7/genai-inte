@@ -48,36 +48,41 @@ def create_reasoning_function(prompt_template: str, function_name: str, plugin_n
     )
 
 # Define a function to run vehicle security reasoning
-async def run_vehicle_security_reasoning(reasoning_prompt, face_recognition_result, iot_data):
+async def run_vehicle_security_reasoning(reasoning_prompt, face_recognition_result, iot_data, fingerprint_status):
     """
     Run the reasoning function asynchronously for vehicle security scenarios.
     """
-    # Validate IoT data
     if not iot_data:
         raise ValueError("IoT data is missing or invalid.")
 
-    # Create the reasoning function dynamically
     reasoning_function = create_reasoning_function(
         prompt_template=reasoning_prompt,
         function_name="vehicle_security_reasoning",
         plugin_name="vehicle_security_plugin",
     )
 
-    # Prepare input for the reasoning function
     input_data = {
         "face_recognition_result": face_recognition_result,
         "door_sensor_status": iot_data.get("door_sensor", "unknown"),
         "motion_sensor_status": iot_data.get("motion_sensor", "unknown"),
+        "fingerprint_status": fingerprint_status
     }
 
-    print(f"Input data for vehicle security reasoning: {input_data}")  # Debugging log
+    print(f"Input data for vehicle security reasoning: {input_data}")
 
-    # Invoke the reasoning function
     try:
         result = await kernel.invoke(reasoning_function, input=input_data)
-        print(f"Vehicle security reasoning result: {result}")  # Debugging log
+        print(f"Raw Semantic Kernel response: {result}")
 
-        return result
+        # Ensure the result is in the expected format
+        if isinstance(result, dict) and "threat_level" in result and "actions" in result:
+            return result
+        else:
+            print("Unexpected response format from Semantic Kernel.")
+            return {
+                "threat_level": "low",  # Default to "low" if response is invalid
+                "actions": []
+            }
     except Exception as e:
         print(f"Error in vehicle security reasoning function: {e}")
         raise

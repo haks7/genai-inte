@@ -8,6 +8,7 @@ export default function SemanticKernelVehicleSecurityPage() {
   const [faceId, setFaceId] = useState(''); // Input for face ID
   const [doorStatus, setDoorStatus] = useState('closed'); // Input for door sensor status
   const [motionStatus, setMotionStatus] = useState('inactive'); // Input for motion sensor status
+  const [fingerprintStatus, setFingerprintStatus] = useState('unknown'); // Input for fingerprint status
   const [results, setResults] = useState<any>(null); // Results from the API
   const [loading, setLoading] = useState(false); // Loading state
   const [error, setError] = useState(''); // Error state
@@ -18,11 +19,13 @@ export default function SemanticKernelVehicleSecurityPage() {
       faceId: 'owner_face_id_1',
       doorStatus: 'closed',
       motionStatus: 'inactive',
+      fingerprintStatus: 'authorized',
     },
     negative: {
       faceId: 'unknown_face_id',
       doorStatus: 'forced_open',
       motionStatus: 'active',
+      fingerprintStatus: 'unauthorized',
     },
   };
 
@@ -35,14 +38,17 @@ export default function SemanticKernelVehicleSecurityPage() {
       setFaceId(scenarios.positive.faceId);
       setDoorStatus(scenarios.positive.doorStatus);
       setMotionStatus(scenarios.positive.motionStatus);
+      setFingerprintStatus(scenarios.positive.fingerprintStatus);
     } else if (selectedScenario === 'negative') {
       setFaceId(scenarios.negative.faceId);
       setDoorStatus(scenarios.negative.doorStatus);
       setMotionStatus(scenarios.negative.motionStatus);
+      setFingerprintStatus(scenarios.negative.fingerprintStatus);
     } else {
       setFaceId('');
       setDoorStatus('closed');
       setMotionStatus('inactive');
+      setFingerprintStatus('unknown');
     }
   };
 
@@ -65,6 +71,7 @@ export default function SemanticKernelVehicleSecurityPage() {
         faceId,
         doorStatus,
         motionStatus,
+        fingerprint_status: fingerprintStatus, // Include fingerprint status
       });
 
       setResults(response.data);
@@ -73,6 +80,20 @@ export default function SemanticKernelVehicleSecurityPage() {
       setError(err.response?.data?.error || 'An error occurred while processing your request.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Determine the color based on the threat level
+  const getThreatLevelColor = (threatLevel: string) => {
+    switch (threatLevel) {
+      case 'low':
+        return '#28a745'; // Green
+      case 'medium':
+        return '#ffc107'; // Orange
+      case 'high':
+        return '#dc3545'; // Red
+      default:
+        return '#6c757d'; // Gray (unknown)
     }
   };
 
@@ -172,6 +193,27 @@ export default function SemanticKernelVehicleSecurityPage() {
           <option value="active">Active</option>
         </select>
 
+        <label htmlFor="fingerprintStatus" style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
+          Fingerprint Status:
+        </label>
+        <select
+          id="fingerprintStatus"
+          value={fingerprintStatus}
+          onChange={(e) => setFingerprintStatus(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '12px',
+            marginBottom: '20px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            fontSize: '16px',
+          }}
+        >
+          <option value="unknown">Unknown</option>
+          <option value="authorized">Authorized</option>
+          <option value="unauthorized">Unauthorized</option>
+        </select>
+
         <button
           type="submit"
           style={{
@@ -205,6 +247,7 @@ export default function SemanticKernelVehicleSecurityPage() {
             padding: '20px',
             borderRadius: '8px',
             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            borderLeft: `10px solid ${getThreatLevelColor(results.threatLevel)}`,
           }}
         >
           <h2 style={{ color: '#333', borderBottom: '2px solid #007BFF', paddingBottom: '10px' }}>Results</h2>
@@ -216,10 +259,21 @@ export default function SemanticKernelVehicleSecurityPage() {
             <strong>IoT Data:</strong>
             <p>Door Sensor: {results.iotData?.door_sensor || 'N/A'}</p>
             <p>Motion Sensor: {results.iotData?.motion_sensor || 'N/A'}</p>
+            <p>Fingerprint Status: {results.iotData?.fingerprint_status || 'N/A'}</p>
           </div>
           <div style={{ marginBottom: '10px' }}>
-            <strong>Semantic Response:</strong>
-            <p>{results.semanticResponse || 'N/A'}</p>
+            <strong>Threat Level:</strong>
+            <p style={{ color: getThreatLevelColor(results.threatLevel), fontWeight: 'bold' }}>
+              {results.threatLevel || 'N/A'}
+            </p>
+          </div>
+          <div style={{ marginBottom: '10px' }}>
+            <strong>Actions Executed:</strong>
+            <ul>
+              {results.actionsExecuted?.map((action: any, index: number) => (
+                <li key={index}>{action.message}</li>
+              )) || 'N/A'}
+            </ul>
           </div>
         </div>
       )}
