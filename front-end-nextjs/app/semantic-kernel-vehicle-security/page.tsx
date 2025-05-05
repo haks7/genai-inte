@@ -4,74 +4,32 @@ import { useState } from 'react';
 import axios from 'axios';
 
 export default function SemanticKernelVehicleSecurityPage() {
-  const [scenario, setScenario] = useState(''); // Dropdown for scenario selection
-  const [faceId, setFaceId] = useState(''); // Input for face ID
-  const [doorStatus, setDoorStatus] = useState('closed'); // Input for door sensor status
-  const [motionStatus, setMotionStatus] = useState('inactive'); // Input for motion sensor status
-  const [fingerprintStatus, setFingerprintStatus] = useState('unknown'); // Input for fingerprint status
-  const [results, setResults] = useState<any>(null); // Results from the API
-  const [loading, setLoading] = useState(false); // Loading state
-  const [error, setError] = useState(''); // Error state
-
-  // Predefined scenarios
-  const scenarios = {
-    positive: {
-      faceId: 'owner_face_id_1',
-      doorStatus: 'closed',
-      motionStatus: 'inactive',
-      fingerprintStatus: 'authorized',
-    },
-    negative: {
-      faceId: 'unknown_face_id',
-      doorStatus: 'forced_open',
-      motionStatus: 'active',
-      fingerprintStatus: 'unauthorized',
-    },
-  };
-
-  // Handle scenario selection
-  const handleScenarioChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedScenario = e.target.value;
-    setScenario(selectedScenario);
-
-    if (selectedScenario === 'positive') {
-      setFaceId(scenarios.positive.faceId);
-      setDoorStatus(scenarios.positive.doorStatus);
-      setMotionStatus(scenarios.positive.motionStatus);
-      setFingerprintStatus(scenarios.positive.fingerprintStatus);
-    } else if (selectedScenario === 'negative') {
-      setFaceId(scenarios.negative.faceId);
-      setDoorStatus(scenarios.negative.doorStatus);
-      setMotionStatus(scenarios.negative.motionStatus);
-      setFingerprintStatus(scenarios.negative.fingerprintStatus);
-    } else {
-      setFaceId('');
-      setDoorStatus('closed');
-      setMotionStatus('inactive');
-      setFingerprintStatus('unknown');
-    }
-  };
+  const [faceId, setFaceId] = useState('');
+  const [doorStatus, setDoorStatus] = useState('');
+  const [motionStatus, setMotionStatus] = useState('');
+  const [fingerprintStatus, setFingerprintStatus] = useState('');
+  const [results, setResults] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validate inputs
-    if (!faceId) {
-      alert('Please provide a valid Face ID.');
-      return;
-    }
 
     setLoading(true);
     setResults(null);
     setError('');
 
     try {
-      // Call the /api/vehicle-security endpoint
-      const response = await axios.post('/api/vehicle-security', {
-        faceId,
-        doorStatus,
-        motionStatus,
-        fingerprint_status: fingerprintStatus, // Include fingerprint status
+      const formData = new FormData();
+      if (faceId) formData.append('faceId', faceId);
+      if (doorStatus) formData.append('doorStatus', doorStatus);
+      if (motionStatus) formData.append('motionStatus', motionStatus);
+      if (fingerprintStatus) formData.append('fingerprintStatus', fingerprintStatus);
+
+      const response = await axios.post('/api/vehicle-security', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       setResults(response.data);
@@ -83,7 +41,6 @@ export default function SemanticKernelVehicleSecurityPage() {
     }
   };
 
-  // Determine the color based on the threat level
   const getThreatLevelColor = (threatLevel: string) => {
     switch (threatLevel) {
       case 'low':
@@ -109,17 +66,14 @@ export default function SemanticKernelVehicleSecurityPage() {
       <h1 style={{ textAlign: 'center', color: '#333', marginBottom: '20px' }}>
         Semantic Kernel Vehicle Security
       </h1>
-      <p style={{ textAlign: 'center', color: '#555', marginBottom: '20px' }}>
-        Test the vehicle security system powered by Semantic Kernel.
-      </p>
       <form onSubmit={handleSubmit} style={{ maxWidth: '600px', margin: '20px auto' }}>
-        <label htmlFor="scenario" style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-          Select Scenario:
+        <label htmlFor="faceId" style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
+          Select Face ID (Optional):
         </label>
         <select
-          id="scenario"
-          value={scenario}
-          onChange={handleScenarioChange}
+          id="faceId"
+          value={faceId}
+          onChange={(e) => setFaceId(e.target.value)}
           style={{
             width: '100%',
             padding: '12px',
@@ -129,32 +83,14 @@ export default function SemanticKernelVehicleSecurityPage() {
             fontSize: '16px',
           }}
         >
-          <option value="">-- Select Scenario --</option>
-          <option value="positive">Positive Scenario (Authorized Access)</option>
-          <option value="negative">Negative Scenario (Unauthorized Access)</option>
+          <option value="">-- Select Face ID --</option>
+          <option value="owner_face_id_1">Owner Face ID 1</option>
+          <option value="owner_face_id_2">Owner Face ID 2</option>
+          <option value="unknown_face_id">Unknown Face ID</option>
         </select>
 
-        <label htmlFor="faceId" style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-          Face ID:
-        </label>
-        <input
-          id="faceId"
-          type="text"
-          value={faceId}
-          onChange={(e) => setFaceId(e.target.value)}
-          placeholder="Enter Face ID"
-          style={{
-            width: '100%',
-            padding: '12px',
-            marginBottom: '20px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            fontSize: '16px',
-          }}
-        />
-
         <label htmlFor="doorStatus" style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-          Door Sensor Status:
+          Door Sensor Status (Optional):
         </label>
         <select
           id="doorStatus"
@@ -169,12 +105,13 @@ export default function SemanticKernelVehicleSecurityPage() {
             fontSize: '16px',
           }}
         >
+          <option value="">-- Select Door Status --</option>
           <option value="closed">Closed</option>
           <option value="forced_open">Forced Open</option>
         </select>
 
         <label htmlFor="motionStatus" style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-          Motion Sensor Status:
+          Motion Sensor Status (Optional):
         </label>
         <select
           id="motionStatus"
@@ -189,12 +126,13 @@ export default function SemanticKernelVehicleSecurityPage() {
             fontSize: '16px',
           }}
         >
+          <option value="">-- Select Motion Status --</option>
           <option value="inactive">Inactive</option>
           <option value="active">Active</option>
         </select>
 
         <label htmlFor="fingerprintStatus" style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-          Fingerprint Status:
+          Fingerprint Status (Optional):
         </label>
         <select
           id="fingerprintStatus"
@@ -209,7 +147,7 @@ export default function SemanticKernelVehicleSecurityPage() {
             fontSize: '16px',
           }}
         >
-          <option value="unknown">Unknown</option>
+          <option value="">-- Select Fingerprint Status --</option>
           <option value="authorized">Authorized</option>
           <option value="unauthorized">Unauthorized</option>
         </select>
@@ -250,31 +188,28 @@ export default function SemanticKernelVehicleSecurityPage() {
             borderLeft: `10px solid ${getThreatLevelColor(results.threatLevel)}`,
           }}
         >
-          <h2 style={{ color: '#333', borderBottom: '2px solid #007BFF', paddingBottom: '10px' }}>Results</h2>
-          <div style={{ marginBottom: '10px' }}>
-            <strong>Face Recognition:</strong>
-            <p>{results.faceRecognition || 'N/A'}</p>
-          </div>
-          <div style={{ marginBottom: '10px' }}>
-            <strong>IoT Data:</strong>
-            <p>Door Sensor: {results.iotData?.door_sensor || 'N/A'}</p>
-            <p>Motion Sensor: {results.iotData?.motion_sensor || 'N/A'}</p>
-            <p>Fingerprint Status: {results.iotData?.fingerprint_status || 'N/A'}</p>
-          </div>
-          <div style={{ marginBottom: '10px' }}>
-            <strong>Threat Level:</strong>
-            <p style={{ color: getThreatLevelColor(results.threatLevel), fontWeight: 'bold' }}>
-              {results.threatLevel || 'N/A'}
-            </p>
-          </div>
-          <div style={{ marginBottom: '10px' }}>
-            <strong>Actions Executed:</strong>
-            <ul>
-              {results.actionsExecuted?.map((action: any, index: number) => (
-                <li key={index}>{action.message}</li>
-              )) || 'N/A'}
-            </ul>
-          </div>
+          <h2 style={{ color: '#333', borderBottom: '2px solid #007BFF', paddingBottom: '10px' }}>Analysis</h2>
+          <p><strong>Face Recognition:</strong> {results.faceRecognition}</p>
+          <p><strong>Threat Level:</strong> <span style={{ color: getThreatLevelColor(results.threatLevel) }}>{results.threatLevel}</span></p>
+
+          <h2 style={{ color: '#333', borderBottom: '2px solid #007BFF', paddingBottom: '10px', marginTop: '20px' }}>IoT Data</h2>
+          <p><strong>Door Sensor:</strong> {results.iotData?.door_sensor}</p>
+          <p><strong>Motion Sensor:</strong> {results.iotData?.motion_sensor}</p>
+          <p><strong>Fingerprint Status:</strong> {results.iotData?.fingerprint_status}</p>
+
+          <h2 style={{ color: '#333', borderBottom: '2px solid #007BFF', paddingBottom: '10px', marginTop: '20px' }}>Actions</h2>
+          <ul>
+            {results.semanticResponse?.actions?.map((action: string, index: number) => (
+              <li key={index}>{action}</li>
+            ))}
+          </ul>
+
+          <h2 style={{ color: '#333', borderBottom: '2px solid #007BFF', paddingBottom: '10px', marginTop: '20px' }}>Executed Actions</h2>
+          <ul>
+            {results.actionsExecuted?.map((action: any, index: number) => (
+              <li key={index}>{action.message}</li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

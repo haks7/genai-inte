@@ -4,7 +4,6 @@ import { useState } from 'react';
 import axios from 'axios';
 
 export default function TestPage() {
-  const [selectedQuery, setSelectedQuery] = useState('');
   const [customQuery, setCustomQuery] = useState(''); // State for custom query
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -13,41 +12,15 @@ export default function TestPage() {
   const [previewQuery, setPreviewQuery] = useState(''); // State for query preview
   const [error, setError] = useState(''); // State for error messages
 
-  // Predefined list of Australian cities and postal codes
-  const australianCities = [
-    { city: 'Melbourne', postalCode: '3000' },
-    { city: 'Sydney', postalCode: '2000' },
-    { city: 'Brisbane', postalCode: '4000' },
-    { city: 'Adelaide', postalCode: '5000' },
-    { city: 'Perth', postalCode: '6000' },
-    { city: 'Hobart', postalCode: '7000' },
-    { city: 'Darwin', postalCode: '0800' },
-    { city: 'Canberra', postalCode: '2600' },
-  ];
-
-  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selected = australianCities.find((city) => city.city === e.target.value);
-    if (selected) {
-      setSelectedCity(selected.city);
-      setPostalCode(selected.postalCode);
-    }
-  };
-
   const handlePreview = () => {
-    const queryToPreview = customQuery || selectedQuery || `What is the weather like in ${selectedCity}, ${postalCode}?`;
+    const queryToPreview = customQuery || `Plan my trip efficiently in ${selectedCity}, ${postalCode}.`;
     setPreviewQuery(queryToPreview);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate inputs
-    if (!selectedCity || !postalCode) {
-      alert('Please select a valid city and postal code.');
-      return;
-    }
-
-    const queryToSubmit = customQuery || selectedQuery || `What is the weather like in ${selectedCity}, ${postalCode}?`;
+    const queryToSubmit = customQuery || `Plan my trip efficiently in ${selectedCity}, ${postalCode}.`;
 
     setLoading(true);
     setResults(null);
@@ -78,18 +51,20 @@ export default function TestPage() {
         minHeight: '100vh',
       }}
     >
-      <h1 style={{ textAlign: 'center', color: '#333', marginBottom: '20px' }}>Weather Query App</h1>
+      <h1 style={{ textAlign: 'center', color: '#333', marginBottom: '20px' }}>Vehicle Optimization App</h1>
       <p style={{ textAlign: 'center', color: '#555', marginBottom: '20px' }}>
-        Select a city and postal code to get weather insights and recommendations.
+        Enter a custom query or use the default settings to optimize your trip.
       </p>
       <form onSubmit={handleSubmit} style={{ maxWidth: '600px', margin: '20px auto' }}>
         <label htmlFor="city" style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-          Select City:
+          City (default: Melbourne):
         </label>
-        <select
+        <input
           id="city"
+          type="text"
           value={selectedCity}
-          onChange={handleCityChange}
+          onChange={(e) => setSelectedCity(e.target.value)}
+          placeholder="Enter city"
           style={{
             width: '100%',
             padding: '12px',
@@ -98,22 +73,17 @@ export default function TestPage() {
             borderRadius: '4px',
             fontSize: '16px',
           }}
-        >
-          {australianCities.map((city, index) => (
-            <option key={index} value={city.city}>
-              {city.city} ({city.postalCode})
-            </option>
-          ))}
-        </select>
+        />
 
         <label htmlFor="postalCode" style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-          Postal Code (auto-filled):
+          Postal Code (default: 3000):
         </label>
         <input
           id="postalCode"
           type="text"
           value={postalCode}
-          readOnly
+          onChange={(e) => setPostalCode(e.target.value)}
+          placeholder="Enter postal code"
           style={{
             width: '100%',
             padding: '12px',
@@ -121,8 +91,6 @@ export default function TestPage() {
             border: '1px solid #ccc',
             borderRadius: '4px',
             fontSize: '16px',
-            backgroundColor: '#f9f9f9',
-            color: '#555',
           }}
         />
 
@@ -228,14 +196,36 @@ export default function TestPage() {
             <p>{results.decisionmaking || 'N/A'}</p>
           </div>
           <div style={{ marginBottom: '10px' }}>
-            <strong>Car Seat Adjustment:</strong>
-            <p>{results.carSeatAdjustment || 'N/A'}</p>
+            <strong>Car Seat Heat Adjustment:</strong>
+            <p>{results.carSeatHeatAdjustment || 'N/A'}</p>
+          </div>
+          <div style={{ marginBottom: '10px' }}>
+            <strong>Route Plan:</strong>
+            <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+              {JSON.stringify(results.routePlan, null, 2) || 'N/A'}
+            </pre>
+          </div>
+          <div style={{ marginBottom: '10px' }}>
+            <strong>Car Preparation:</strong>
+            <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+              {JSON.stringify(results.carPreparation, null, 2) || 'N/A'}
+            </pre>
+          </div>
+          <div style={{ marginBottom: '10px' }}>
+            <strong>Rest Stop Suggestion:</strong>
+            <p>{results.restStopSuggestion || 'N/A'}</p>
+          </div>
+          <div style={{ marginBottom: '10px' }}>
+            <strong>Trip Summary:</strong>
+            <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+              {JSON.stringify(results.tripSummary, null, 2) || 'N/A'}
+            </pre>
           </div>
           <div style={{ marginBottom: '10px' }}>
             <strong>City Weather:</strong>
             <p>
-              City: {results.cityWeather?.city || 'N/A'}, Temperature: {results.cityWeather?.temperature || 'N/A'}°C, Condition:{' '}
-              {results.cityWeather?.condition || 'N/A'}
+              City: {results.cityWeather?.city || 'N/A'}, Temperature: {results.cityWeather?.temperature || 'N/A'}°C,
+              Condition: {results.cityWeather?.condition || 'N/A'}
             </p>
           </div>
         </div>

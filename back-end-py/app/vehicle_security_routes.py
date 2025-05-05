@@ -3,7 +3,7 @@ from flask_cors import CORS
 from app.orchestration import orchestrate_security
 
 vehicle_security_routes = Blueprint("vehicle_security_routes", __name__)
-CORS(vehicle_security_routes)  # Enable CORS for cross-origin request
+CORS(vehicle_security_routes)  # Enable CORS for cross-origin requests
 
 @vehicle_security_routes.route('/api/vehicle-security', methods=['POST'])
 def vehicle_security():
@@ -15,19 +15,20 @@ def vehicle_security():
         print(f"Request headers: {request.headers}")
         print(f"Raw request data: {request.data}")
 
-        # Parse JSON data
-        data = request.get_json()
-        print(f"Parsed request data: {data}")
+        # Ensure the request is multipart/form-data
+        if not request.content_type.startswith("multipart/form-data"):
+            return jsonify({"error": "Unsupported Media Type. Expected 'multipart/form-data'."}), 415
 
-        if not data:
-            return jsonify({"error": "Invalid or empty JSON payload"}), 400
+         # Parse multipart/form-data
+        face_id = request.form.get("faceId", "unknown").strip()  # Default to "unknown"
+        door_status = request.form.get("doorStatus", "unknown").strip()  # Default to "unknown"
+        motion_status = request.form.get("motionStatus", "unknown").strip()  # Default to "unknown"
+        fingerprint_status = request.form.get("fingerprintStatus", "unknown").strip()  # Default to "unknown"
 
-        # Validate inputs
-        face_id = data.get("faceId", "").strip()
-        door_status = data.get("doorStatus", "").strip()
-        motion_status = data.get("motionStatus", "").strip()
-        fingerprint_status = data.get("fingerprint_status", "unknown").strip()  # Default to "unknown"
+        # Debugging log for parsed form data
+        print(f"Parsed form data: faceId={face_id}, doorStatus={door_status}, motionStatus={motion_status}, fingerprintStatus={fingerprint_status}")
 
+        # Validate required inputs
         if not face_id or not door_status or not motion_status:
             return jsonify({"error": "faceId, doorStatus, and motionStatus are required"}), 400
 

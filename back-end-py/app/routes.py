@@ -1,69 +1,107 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
+from app.semantic_kernel_helper import run_reasoning
 from app.azure_ai_helper import AzureAITextAgent
 from app.azure_cognitive_helper import AzureCognitiveTextAgent
-from app.semantic_kernel_helper import run_reasoning
+from app.utils import (
+    adjust_car_seat_heating,
+    fetch_calendar_events,
+    simulate_driver_fatigue,
+    suggest_stopovers,
+    prepare_vehicle_ambience,
+    fetch_charging_stations,
+)
 from app.foundry_ai_helper import FoundryAIAgent
 import asyncio
-import sys, os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from weather_tool import fetch_weather_data
-import utils
-
+from app.weather_tool import fetch_weather_data
 
 routes = Blueprint("routes", __name__)
 CORS(routes)  # Enable CORS for cross-origin requests
 
 @routes.route('/api/vehicle-optimization', methods=['POST'])
 def vehicle_optimization():
-    """Optimize vehicle operations based on weather and user queries."""
+    """
+    Optimize vehicle operations based on the owner's agenda, preferences, and contextual factors.
+    """
     try:
-        data = request.get_json()
+        # Step 1: Parse user inputs
+        data = request.get_json() or {}
         print(f"Incoming request data: {data}")  # Debugging log
 
-        user_query = data.get("query", "")
-        city = data.get("city", "").strip()  # Accept city
-        postal_code = data.get("postalCode", "").strip()  # Accept postal code
+        # Default values for inputs
+        user_query = data.get("query", "").strip() or "Plan my trip efficiently."
+        city = data.get("city", "").strip() or "Melbourne"
+        country = data.get("country", "").strip() or "Australia"
+        postal_code = data.get("postalCode", "").strip() or "3000"
+        vehicle_status = data.get("vehicleStatus") or {"batteryLevel": 80}  # Simulated vehicle status
+        preferences = data.get("preferences") or {"food": "vegan", "music": "jazz"}  # Simulated preferences
 
-        # Validate inputs
-        if not user_query or not city or not postal_code:
-            return jsonify({"error": "Query, city, and postal code are required"}), 400
-        if not city.isalpha():
-            return jsonify({"error": "City must contain only alphabetic characters"}), 400
-        if not postal_code.isdigit() or len(postal_code) != 4:
-            return jsonify({"error": "Postal code must be a 4-digit number"}), 400
-
-        # Combine city and postal code for weather data fetching
-        location = f"{city}, {postal_code}"
+        # Combine location for weather data fetching
+        location = f"{city}, {country}"
+        if postal_code:
+            location += f", {postal_code}"
         print(f"Fetching weather data for location: {location}")  # Debugging log
 
-        # Step 1: Fetch city weather data
-        city_weather = fetch_weather_data(location)
-        if not city_weather:
-            return jsonify({"error": f"Weather data not found for {location}."}), 404
+        # Step 2: Fetch city weather data
+        city_weather = fetch_weather_data(location) or {"temperature": 22, "condition": "Clear"}  # Simulated fallback
+        print(f"Weather data: {city_weather}")
 
-        # Step 2: Analyze sentiment using Azure AI Cognitive Services - Sentiment Text Analytics
-        text_sentiment_agent_restapi = AzureAITextAgent("SentimentAnalysis")
-        sentiment_analysis = text_sentiment_agent_restapi.analyze_text(user_query)
+        # Step 3: Sync with the owner's calendar
+        calendar_events = fetch_calendar_events()
+        print(f"Calendar events: {calendar_events}")
 
-        # Step 3: Extract key phrases using Azure AI Cognitive Services - Key Phrases Text Analytics
-        text_keyphrase_agent_restapi = AzureCognitiveTextAgent("KeyPhraseExtraction")
-        key_phrases = text_keyphrase_agent_restapi.extract_key_phrases(user_query)
+        # Step 4: Analyze sentiment and extract key phrases
+        azure_ai_agent = AzureAITextAgent("SentimentAnalysis")
+        sentiment_analysis = azure_ai_agent.analyze_sentiment(user_query)
+        if not sentiment_analysis:
+            raise ValueError("Sentiment analysis failed.")
+        
+        azure_ai_cognitive_agent = AzureCognitiveTextAgent("KeyPhraseExtraction")
+        key_phrases = azure_ai_cognitive_agent.extract_key_phrases(user_query)
+        if not key_phrases:
+            raise ValueError("Key phrase extraction failed.")
+        
 
-        # Step 4: Use Foundry AI for decision-making
-        foundry_AIProjectClient = FoundryAIAgent("DecisionOnGroundingData")
-        foundry_decision = foundry_AIProjectClient.make_decision(user_query, key_phrases, city_weather)
-        print(f"Decision: {foundry_decision}")
+        # Step 5: Use Foundry AI for decision-making
+        foundry_agent = FoundryAIAgent("DecisionOnGroundingData")
+        foundry_decision = foundry_agent.make_decision(user_query, key_phrases, city_weather)
+        if not foundry_decision:
+            raise ValueError("Foundry decision-making failed.")
+        # Simulate decision-making process
+        print(f"Foundry decision: {foundry_decision}")
 
-        # Step 5: Adjust car seat heating based on foundry decision and weather data
-        adjustment = utils.adjust_car_seat_heating(city_weather["temperature"], foundry_decision)
-        print(f"Car seat adjustment based on Foundry decision: {adjustment}")
+        # Step 6: Plan the route based on contextual factors
+        charging_stations = fetch_charging_stations(location, vehicle_status["batteryLevel"])
+        stopover_suggestions = suggest_stopovers(calendar_events, preferences)
+        route_plan = {
+            "route": "Energy-efficient Route A",
+            "chargingStops": charging_stations,
+            "stopovers": stopover_suggestions,
+        }
+        print(f"Route plan: {route_plan}")
 
-        # Step 6: Use Semantic Kernel for reasoning
+        # Step 7: Prepare the car before departure
+        car_preparation = prepare_vehicle_ambience(preferences, city_weather)
+        print(f"Car preparation: {car_preparation}")
+
+        # Step 8: Detect driver fatigue and suggest rest stops
+        fatigue_detected = simulate_driver_fatigue(vehicle_status)
+        rest_stop_suggestion = (
+            "Driver fatigue detected. Suggesting a rest stop nearby."
+            if fatigue_detected
+            else "No fatigue detected. Continuing the trip."
+        )
+        print(f"Rest stop suggestion: {rest_stop_suggestion}")
+
+        # Step 9: Adjust car seat heating
+        adjustment = adjust_car_seat_heating(city_weather["temperature"], foundry_decision)
+        print(f"Car seat adjustment: {adjustment}")
+
+        # Step 10: Use Semantic Kernel for reasoning
         reasoning_prompt = f"""
-        The user query is: {{$input}}.
+        The user query is: {user_query}.
         The extracted key phrases are: {', '.join(key_phrases)}.
-        The weather data is: {{$weather_data}}.
+        The weather data is: {city_weather}.
         Provide actionable recommendations for optimizing vehicle operations.
         """
         semantic_response = asyncio.run(run_reasoning(
@@ -72,6 +110,14 @@ def vehicle_optimization():
             key_phrases=key_phrases,
             weather_data=city_weather,
         ))
+        print(f"Semantic reasoning response: {semantic_response}")
+
+        # Step 11: Prepare trip summary and notifications
+        trip_summary = {
+            "estimatedArrivalTime": "10:30 AM",
+            "routeDetails": route_plan["route"],
+            "energyConsumptionPlan": "Charge at Station B for 20 minutes.",
+        }
 
         # Return the results as a JSON response
         return jsonify({
@@ -79,7 +125,11 @@ def vehicle_optimization():
             "keyPhrases": f"The key phrases extracted from the query are: {', '.join(key_phrases)}.",
             "decisionmaking": f"The decision based on the query and key phrases is: {foundry_decision}.",
             "semanticResponse": f"The semantic reasoning response is: {semantic_response}.",
-            "carSeatAdjustment": f"The car seat adjustment recommendation is: {adjustment}.",
+            "carSeatHeatAdjustment": f"The car seat heat adjustment recommendation is: {adjustment}.",
+            "routePlan": route_plan,
+            "carPreparation": car_preparation,
+            "restStopSuggestion": rest_stop_suggestion,
+            "tripSummary": trip_summary,
             "cityWeather": city_weather  # From the weather data
         })
     except Exception as e:

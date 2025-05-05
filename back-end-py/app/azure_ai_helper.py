@@ -14,7 +14,7 @@ class AzureAITextAgent:
     def __init__(self, source):
         self.source = source
 
-    def analyze_text(self, text):
+    def analyze_sentiment(self, text):
         """Analyze text using Azure AI Services."""
         url = f"{ai_services_endpoint}/text/analytics/v3.1/sentiment"
         headers = {

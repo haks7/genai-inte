@@ -4,12 +4,20 @@ def simulate_iot_data(door_status="closed", motion_status="inactive", fingerprin
     valid_motion_statuses = ["inactive", "active"]
     valid_fingerprint_statuses = ["authorized", "unauthorized", "unknown"]
 
+    # Validate and fallback for door_status
     if door_status not in valid_door_statuses:
-        raise ValueError(f"Invalid door_status: {door_status}")
+        print(f"Invalid door_status: {door_status}. Defaulting to 'closed'.")
+        door_status = "closed"
+
+    # Validate and fallback for motion_status
     if motion_status not in valid_motion_statuses:
-        raise ValueError(f"Invalid motion_status: {motion_status}")
+        print(f"Invalid motion_status: {motion_status}. Defaulting to 'inactive'.")
+        motion_status = "inactive"
+
+    # Validate and fallback for fingerprint_status
     if fingerprint_status not in valid_fingerprint_statuses:
-        raise ValueError(f"Invalid fingerprint_status: {fingerprint_status}")
+        print(f"Invalid fingerprint_status: {fingerprint_status}. Defaulting to 'unknown'.")
+        fingerprint_status = "unknown"
 
     return {
         "door_sensor": door_status,
