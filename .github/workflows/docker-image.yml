@@ -3,7 +3,7 @@ name: Build and Push Docker Images
 on:
   push:
     branches:
-      - main
+      - sumana_working_branch
 
 jobs:
   build-and-push:
