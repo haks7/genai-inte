@@ -233,7 +233,7 @@ export default function SemanticKernelVehicleSecurityPage() {
                 Architecture Diagram
               </strong>
               <img
-                src="/architecture_diagram.png" // Path to the image in the public directory
+                src="/architecture_diagram.png"
                 alt="Architecture Diagram"
                 style={{
                   marginTop: '10px',
