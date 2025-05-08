@@ -1,20 +1,20 @@
-# Use a lightweight Python image
-FROM python:3.9-slim
+# Use a base image with Python 3.10 or higher
+FROM python:3.10-slim
 
-# Set the working directory inside the container
+# Set the working directory
 WORKDIR /app
 
-# Copy only the requirements file first to leverage Docker caching
-COPY requirements.txt /app/
+# Copy requirements file into the image
+COPY requirements.txt .
 
-# Install Python dependencies
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the backend files to the container
-COPY . /app
+# Copy the rest of the application code into the image
+COPY . .
 
-# Expose the port the app runs on
+# Expose the application port
 EXPOSE 8000
 
-# Start the backend application using Gunicorn
+# Use Gunicorn to serve the application
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--timeout", "600", "app.main:app"]
