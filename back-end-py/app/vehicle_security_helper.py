@@ -11,8 +11,15 @@ import asyncio
 # Load environment variables from .env file
 load_dotenv()
 
-def send_alert_email(subject, body, recipient_email):
+def send_alert_email():
     """Send an alert email using Gmail."""
+    recipient_email = os.getenv("RECIPIENT_EMAIL", "sumana.pinjarla@gmail.com")
+    subject = "Vehicle Security Alert"
+    body = (
+        "Alert! Unauthorized access detected.\n\n"
+        "Please take immediate action to secure your vehicle."
+    )   
+    
     sender_email = os.getenv("SENDER_EMAIL")
     sender_password = os.getenv("SENDER_PASSWORD")
     smtp_server = "smtp.gmail.com"
@@ -33,6 +40,8 @@ def send_alert_email(subject, body, recipient_email):
             server.login(sender_email, sender_password)
             server.send_message(msg)
             print(f"Alert email sent successfully to {recipient_email}.")
+            return {"action": "Email Sent Successfully", "message": "Email sent successfully."}
+
     except Exception as e:
         print(f"Failed to send email: {e}")
 
@@ -57,7 +66,3 @@ async def run_security_reasoning(reasoning_prompt, face_message, iot_data, finge
         )
     except Exception as e:
         print(f"Error in Semantic Kernel reasoning: {e}")
-        return {
-            "threat_level": "low",  # Default to "low" if reasoning fails
-            "actions": []
-        }

@@ -25,9 +25,6 @@ def fetch_weather_data(city_or_postal_code):
         if not WEATHER_API_URL:
             raise ValueError("Weather API URL is missing. Please set it in the environment.")
 
-        print(f"Using WEATHER_API_KEY: {WEATHER_API_KEY}")  # Debugging log
-        print(f"Using WEATHER_API_URL: {WEATHER_API_URL}")  # Debugging log
-
         # Construct the full URL with query parameters
         params = {
             "q": city_or_postal_code,  # City name or postal code

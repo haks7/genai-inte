@@ -11,7 +11,7 @@ load_dotenv()
 # Fetch Azure OpenAI credentials from environment variables
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
-AZURE_OPENAI_CHAT_DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_MODEL")
+AZURE_OPENAI_CHAT_DEPLOYMENT_NAME = "Agent995"
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
 # Validate that all required environment variables are set

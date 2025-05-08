@@ -1,4 +1,7 @@
 import re
+import requests
+from app.foundry_ai_helper import FoundryAIAgent
+import os
 
 def adjust_car_seat_heating(temperature, foundry_decision):
     """Adjust car seat heating based on temperature and Foundry decision."""
@@ -44,23 +47,69 @@ def fetch_calendar_events():
     Simulate fetching calendar events from the owner's digital calendar.
     """
     return [
-        {"event": "Meeting with client", "time": "10:00 AM", "location": "Downtown Office"},
-        {"event": "Lunch with team", "time": "1:00 PM", "location": "Café Central"},
+        {"event": "Meeting with client", "time": "10:00 AM", "location": "Melbourne Office"},
+        {"event": "Lunch with team", "time": "1:00 PM", "location": "Melbourne Central"},
     ]
 
-def fetch_charging_stations(location, battery_level):
+def get_lat_lon_from_location(location):
     """
-    Simulate fetching charging stations based on location and battery level.
+    Get latitude and longitude from a location using Nominatim (OpenStreetMap).
+    :param location: A string representing the location (e.g., "Melbourne, Australia").
+    :return: A dictionary with latitude and longitude, or None if not found.
+    """
+    try:
+        url = "https://nominatim.openstreetmap.org/search"
+        params = {
+            "q": location,
+            "format": "json",
+            "limit": 1
+        }
+        response = requests.get(url, params=params)
+        if response.status_code == 200 and response.json():
+            result = response.json()[0]
+            return {"lat": float(result["lat"]), "lon": float(result["lon"])}
+        else:
+            print(f"Location not found: {location}")
+            return None
+    except Exception as e:
+        print(f"Error fetching latitude and longitude: {e}")
+        return None
+
+
+def fetch_charging_stations(location_name, battery_level):
+    """
+    Fetch real-time EV charging stations using Open Charge Map API.
+    :param location_name: A string representing the location (e.g., "Melbourne, Australia").
+    :param battery_level: The current battery level of the vehicle.
+    :return: A list of charging stations or an error message.
     """
     if battery_level < 50:
-        return [{"station": "Station A", "distance": "5 km"}, {"station": "Station B", "distance": "10 km"}]
-    return []
-
-def suggest_stopovers(calendar_events, preferences):
-    """
-    Simulate suggesting stopovers based on calendar events and preferences.
-    """
-    return [{"type": "Restaurant", "name": "Vegan Delight", "distance": "2 km"}]
+        # Step 1: Get latitude and longitude from the location name
+        coordinates = get_lat_lon_from_location(location_name)
+        if not coordinates:
+            return [{"error": "Could not fetch coordinates for the location."}]
+        
+        # Step 2: Fetch charging stations using Open Charge Map API
+        api_key = "ddb1a969-6501-4547-9397-760d7fc3c4f1"  # Replace with your Open Charge Map API key
+        url = "https://api.openchargemap.io/v3/poi/"
+        params = {
+            "latitude": coordinates["lat"],
+            "longitude": coordinates["lon"],
+            "maxresults": 5,
+            "key": api_key
+        }
+        try:
+            response = requests.get(url, params=params)
+            if response.status_code == 200:
+                stations = response.json()
+                return [{"station": station["AddressInfo"]["Title"], "distance": f"{station['AddressInfo'].get('Distance', 'N/A')} km"} for station in stations]
+            else:
+                print(f"Error fetching charging stations: {response.status_code} - {response.text}")
+                return [{"error": "Failed to fetch charging stations."}]
+        except Exception as e:
+            print(f"Error fetching charging stations: {e}")
+            return [{"error": "An error occurred while fetching charging stations."}]
+    return [{"message": "Battery level is sufficient. No charging stations needed."}]
 
 def prepare_vehicle_ambience(preferences, weather):
     """
@@ -76,3 +125,4 @@ def simulate_driver_fatigue(vehicle_status):
     Simulate detecting driver fatigue based on vehicle status.
     """
     return vehicle_status.get("batteryLevel", 100) < 20
+

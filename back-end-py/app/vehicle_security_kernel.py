@@ -1,4 +1,5 @@
 import asyncio
+from flask import jsonify
 from semantic_kernel import Kernel
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 from semantic_kernel.prompt_template import PromptTemplateConfig
@@ -11,10 +12,9 @@ load_dotenv()
 # Fetch Azure OpenAI credentials from .env
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
-AZURE_OPENAI_CHAT_DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_MODEL")
 
 # Validate that all required environment variables are set
-if not AZURE_OPENAI_API_KEY or not AZURE_OPENAI_ENDPOINT or not AZURE_OPENAI_CHAT_DEPLOYMENT_NAME:
+if not AZURE_OPENAI_API_KEY or not AZURE_OPENAI_ENDPOINT:
     raise EnvironmentError("Missing required Azure OpenAI credentials in environment variables.")
 
 # Initialize Semantic Kernel
@@ -25,7 +25,7 @@ def create_kernel() -> Kernel:
     kernel = Kernel()
     azure_openai_client = AzureChatCompletion(
         service_id="chat-gpt",
-        deployment_name=AZURE_OPENAI_CHAT_DEPLOYMENT_NAME,
+        deployment_name="gpt-35-turbo",
         endpoint=AZURE_OPENAI_ENDPOINT,
         api_key=AZURE_OPENAI_API_KEY
     )
@@ -87,15 +87,7 @@ async def run_vehicle_security_reasoning(reasoning_prompt: str, face_recognition
         result = await kernel.invoke(reasoning_function, input=input_data)
         print(f"Raw Semantic Kernel response: {result}")  # Debugging log
 
-        # Validate the response format
-        if isinstance(result, dict) and "threat_level" in result and "actions" in result:
-            return result
-        else:
-            print("Unexpected response format from Semantic Kernel.")
-            return {
-                "threat_level": "low",  # Default to "low" if response is invalid
-                "actions": []
-            }
+        return result
     except Exception as e:
         print(f"Error in vehicle security reasoning function: {e}")
         raise RuntimeError(f"Failed to execute vehicle security reasoning: {e}")

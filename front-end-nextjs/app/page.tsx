@@ -9,6 +9,7 @@ export default function TestPage() {
   const [loading, setLoading] = useState(false);
   const [selectedCity, setSelectedCity] = useState('Melbourne'); // Default city
   const [postalCode, setPostalCode] = useState('3000'); // Default postal code
+  const [selectedCountry, setSelectedCountry] = useState('Australia'); // Default postal code
   const [previewQuery, setPreviewQuery] = useState(''); // State for query preview
   const [error, setError] = useState(''); // State for error messages
 
@@ -30,9 +31,10 @@ export default function TestPage() {
       const response = await axios.post('/api/vehicle-optimization', {
         query: queryToSubmit,
         city: selectedCity, // Send city as a separate field
-        postalCode, // Send postal code as a separate field
+        country: selectedCountry,
+        postalCode:selectedCountry, // Send postal code as a separate field
       });
-
+      console.log('Response:', response.data); // Log the response data for debugging
       setResults(response.data);
     } catch (error: any) {
       console.error('Error fetching results:', error);
@@ -53,7 +55,7 @@ export default function TestPage() {
     >
       <h1 style={{ textAlign: 'center', color: '#333', marginBottom: '20px' }}>Vehicle Optimization App</h1>
       <p style={{ textAlign: 'center', color: '#555', marginBottom: '20px' }}>
-        Enter a custom query or use the default settings to optimize your trip.
+        All fields are optional and if no entry is made Melbourne is set to default with a query to know if we have to adjust carseat based on weather API fetced results.
       </p>
       <form onSubmit={handleSubmit} style={{ maxWidth: '600px', margin: '20px auto' }}>
         <label htmlFor="city" style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
@@ -84,6 +86,25 @@ export default function TestPage() {
           value={postalCode}
           onChange={(e) => setPostalCode(e.target.value)}
           placeholder="Enter postal code"
+          style={{
+            width: '100%',
+            padding: '12px',
+            marginBottom: '20px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            fontSize: '16px',
+          }}
+        />
+
+        <label htmlFor="selectedCountry" style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
+          Country (default: Australia):
+        </label>
+        <input
+          id="selectedCountry"  
+          type="text"
+          value={selectedCountry}
+          onChange={(e) => setSelectedCountry(e.target.value)}
+          placeholder="Enter country"
           style={{
             width: '100%',
             padding: '12px',
@@ -214,12 +235,6 @@ export default function TestPage() {
           <div style={{ marginBottom: '10px' }}>
             <strong>Rest Stop Suggestion:</strong>
             <p>{results.restStopSuggestion || 'N/A'}</p>
-          </div>
-          <div style={{ marginBottom: '10px' }}>
-            <strong>Trip Summary:</strong>
-            <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-              {JSON.stringify(results.tripSummary, null, 2) || 'N/A'}
-            </pre>
           </div>
           <div style={{ marginBottom: '10px' }}>
             <strong>City Weather:</strong>

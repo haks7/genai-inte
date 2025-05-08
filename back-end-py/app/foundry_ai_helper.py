@@ -47,6 +47,42 @@ class FoundryAIAgent:
             print(f"Error using Microsoft Foundry AI Project: {e}")
             return f"Error: Unable to process the decision due to {str(e)}."
         
+    def send_prompt(self, prompt):
+        """
+        Send a prompt to the Foundry Agent and retrieve the response.
+        """
+        try:
+            # Get the thread and agent
+            thread = self.project_client.agents.get_thread(self.thread_id)
+            agent = self.project_client.agents.get_agent(self.agent_id)
+
+            # Create a message in the thread
+            self.project_client.agents.create_message(
+                thread_id=thread.id,
+                role="user",
+                content=prompt
+            )
+
+            # Process the run
+            self.project_client.agents.create_and_process_run(
+                thread_id=thread.id,
+                agent_id=agent.id
+            )
+
+            # Retrieve messages from the thread
+            messages = self.project_client.agents.list_messages(thread_id=thread.id)
+
+            # Extract and return the assistant's response
+            for text_message in messages.text_messages:
+                message_dict = text_message.as_dict()
+                if message_dict.get("type") == "text" and "value" in message_dict.get("text", {}):
+                    return message_dict["text"]["value"]
+
+            return "No response from the agent."
+        except Exception as e:
+            print(f"Error sending prompt to Agent: {e}")
+            return f"Error: Unable to process the prompt due to {str(e)}."
+
 # When to Use Each Approach
 # Use AIProjectClient When:
     # You need to manage workflows involving multiple AI agents.

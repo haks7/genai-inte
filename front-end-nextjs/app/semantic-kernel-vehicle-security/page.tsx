@@ -188,28 +188,36 @@ export default function SemanticKernelVehicleSecurityPage() {
             borderLeft: `10px solid ${getThreatLevelColor(results.threatLevel)}`,
           }}
         >
-          <h2 style={{ color: '#333', borderBottom: '2px solid #007BFF', paddingBottom: '10px' }}>Analysis</h2>
+          <strong><h2 style={{ color: '#4B0082', borderBottom: '2px solid #007BFF', paddingBottom: '10px' }}>Analysis</h2></strong>
           <p><strong>Face Recognition:</strong> {results.faceRecognition}</p>
           <p><strong>Threat Level:</strong> <span style={{ color: getThreatLevelColor(results.threatLevel) }}>{results.threatLevel}</span></p>
 
-          <h2 style={{ color: '#333', borderBottom: '2px solid #007BFF', paddingBottom: '10px', marginTop: '20px' }}>IoT Data</h2>
+          <strong><h2 style={{ color: '#4B0082', borderBottom: '2px solid #007BFF', paddingBottom: '10px', marginTop: '20px' }}>IoT Data</h2></strong>
           <p><strong>Door Sensor:</strong> {results.iotData?.door_sensor}</p>
           <p><strong>Motion Sensor:</strong> {results.iotData?.motion_sensor}</p>
           <p><strong>Fingerprint Status:</strong> {results.iotData?.fingerprint_status}</p>
 
-          <h2 style={{ color: '#333', borderBottom: '2px solid #007BFF', paddingBottom: '10px', marginTop: '20px' }}>Actions</h2>
+
+          <strong><h2 style={{ color: '#4B0082', borderBottom: '2px solid #007BFF', paddingBottom: '10px', marginTop: '20px' }}>Actions</h2></strong>
           <ul>
-            {results.semanticResponse?.actions?.map((action: string, index: number) => (
-              <li key={index}>{action}</li>
-            ))}
+            {results.actions
+              ?.filter((action: any) => action !== null && action !== undefined) // Filter out null or undefined values
+              .map((action: any, index: number) => (
+                <li key={index}>
+                  {action.message || 'Unknown action'} {/* Display the message property */}
+                </li>
+              ))}
           </ul>
 
-          <h2 style={{ color: '#333', borderBottom: '2px solid #007BFF', paddingBottom: '10px', marginTop: '20px' }}>Executed Actions</h2>
+          <strong><h2 style={{ color: '#4B0082', borderBottom: '2px solid #007BFF', paddingBottom: '10px', marginTop: '20px' }}>Recommended Actions</h2></strong>
           <ul>
-            {results.actionsExecuted?.map((action: any, index: number) => (
-              <li key={index}>{action.message}</li>
-            ))}
+            {results.recommendedActions
+              ?.filter((action: string) => action) // Filter out empty or falsy values
+              .map((action: string, index: number) => (
+                <li key={index}>{action}</li> 
+              ))}
           </ul>
+
         </div>
       )}
     </div>
