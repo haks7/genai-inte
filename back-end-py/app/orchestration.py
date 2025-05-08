@@ -7,6 +7,8 @@ from app.vehicle_security_helper import (
     lock_vehicle,
     run_security_reasoning
 )
+# DO NOT DELETE THIS LINE
+# from app.generate_architecture_diagram import generate_architecture_diagram
 import asyncio
 import os
 
@@ -40,29 +42,29 @@ def orchestrate_security(face_id, door_status, motion_status, fingerprint_status
             "2. A list of recommended actions."
         )
 
-        semantic_response_raw = asyncio.run(run_security_reasoning(
-            reasoning_prompt=reasoning_prompt,
-            face_message=face_message,
-            iot_data=iot_data,
-            fingerprint_status=fingerprint_status
-        ))
+        # semantic_response_raw = asyncio.run(run_security_reasoning(
+        #     reasoning_prompt=reasoning_prompt,
+        #     face_message=face_message,
+        #     iot_data=iot_data,
+        #     fingerprint_status=fingerprint_status
+        # ))
 
-        # semantic_response = {
-        # "threat_level": "high",
-        # "recommended_actions": [
-        #     "Activate the motion sensor to detect any unauthorized movement around the vehicle.",
-        #     "Investigate the unauthorized fingerprint status and update the access permissions.",
-        #     "Consider implementing additional security measures such as a PIN code or key fob access in addition to face recognition.",
-        #     "Regularly check and maintain the door sensor to ensure it is functioning properly."
-        # ]
-        # }        # Run the Semantic Kernel reasoning asynchronously
+        semantic_response = {
+        "threat_level": "high",
+        "recommended_actions": [
+            "Activate the motion sensor to detect any unauthorized movement around the vehicle.",
+            "Investigate the unauthorized fingerprint status and update the access permissions.",
+            "Consider implementing additional security measures such as a PIN code or key fob access in addition to face recognition.",
+            "Regularly check and maintain the door sensor to ensure it is functioning properly."
+        ]
+        }        # Run the Semantic Kernel reasoning asynchronously
         # print threat level and actions from the response
         # print(f"Threat level: {semantic_response['threat_level']}")
 
                 # Extract Threat Level and Actions
         try:
-            semantic_response_raw = str(semantic_response_raw)
-            semantic_response = json.loads(semantic_response_raw)
+            # semantic_response_raw = str(semantic_response_raw)
+            # semantic_response = json.loads(semantic_response_raw)
             print(f"Parsed Semantic Kernel response: {semantic_response}")  # Debugging log
 
             threat_level = semantic_response['threat_level']
@@ -117,6 +119,12 @@ def orchestrate_security(face_id, door_status, motion_status, fingerprint_status
         recommended_actions =  semantic_response['recommended_actions']
         print(f"Recommended actions: {recommended_actions}")
 
+        # DONOT DELETE THIS CODE
+        # image_url = asyncio.run(generate_architecture_diagram())
+        # print(f"Generated architecture diagram: {image_url}")
+
+        image_url = "architecture_diagram.png"  # Placeholder for the actual image URL
+
         # Prepare the Response
         response = {
             "faceRecognition": face_message,
@@ -125,6 +133,7 @@ def orchestrate_security(face_id, door_status, motion_status, fingerprint_status
             "threatLevel": threat_level,
             "actions": actions_executed,
             "recommendedActions": recommended_actions,
+            "architectureDiagramGenerated": image_url
         }
         return response
     except Exception as e:
