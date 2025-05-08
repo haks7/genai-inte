@@ -213,10 +213,13 @@ export default function SemanticKernelVehicleSecurityPage() {
           <strong><h2 style={{ color: '#4B0082', borderBottom: '2px solid #007BFF', paddingBottom: '10px', marginTop: '20px' }}>Recommended Actions</h2></strong>
           <ul>
             {results.recommendedActions
-              ?.filter((action: string) => action) // Filter out empty or falsy values
-              .map((action: string, index: number) => (
-                <li key={index}>{action}</li>
-              ))}
+              ?.filter((action: { message?: string } | null) => action !== null)
+              .map((action: { message?: string }, index: number) => (
+                <li key={index}>
+                  {action.message || 'Unknown action'}
+                </li>
+              ))
+              }
           </ul>
 
           {results.architectureDiagramGenerated && (

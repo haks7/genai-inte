@@ -4,10 +4,26 @@ import { useState } from 'react';
 import axios from 'axios';
 
 export default function TestPage() {
-  
+
+  // Define a specific type for the results
+  type Results = {
+    sentimentAnalysis?: string;
+    keyPhrases?: string[];
+    semanticResponse?: string;
+    decisionmaking?: string;
+    carSeatHeatAdjustment?: string;
+    routePlan?: object;
+    carPreparation?: object;
+    restStopSuggestion?: string;
+    cityWeather?: {
+      city: string;
+      temperature: number;
+      condition: string;
+    };
+  };
+
   const [customQuery, setCustomQuery] = useState(''); // State for custom query
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [results, setResults] = useState<any | null>(null);
+  const [results, setResults] = useState<Results | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedCity, setSelectedCity] = useState('Melbourne'); // Default city
   const [postalCode, setPostalCode] = useState('3000'); // Default postal code
@@ -34,13 +50,13 @@ export default function TestPage() {
         query: queryToSubmit,
         city: selectedCity, // Send city as a separate field
         country: selectedCountry,
-        postalCode:postalCode, // Send postal code as a separate field
+        postalCode: postalCode, // Send postal code as a separate field
       });
       console.log('Response:', response.data); // Log the response data for debugging
       setResults(response.data);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching results:', error);
-      setError(error.response?.data?.error || 'An error occurred while processing your query.');
+      setError('An error occurred while processing your query.');
     } finally {
       setLoading(false);
     }
@@ -102,7 +118,7 @@ export default function TestPage() {
           Country (default: Australia):
         </label>
         <input
-          id="selectedCountry"  
+          id="selectedCountry"
           type="text"
           value={selectedCountry}
           onChange={(e) => setSelectedCountry(e.target.value)}
