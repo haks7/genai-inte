@@ -10,25 +10,19 @@ load_dotenv()
 AZURE_GPT_TEXT_IMAGE_ENDPOINT = os.getenv("AZURE_OPENAI_IMAGE_GENERATION_ENDPOINT")
 AZURE_GPT_TEXT_IMAGE_KEY = os.getenv("AZURE_OPENAI_IMAGE_GENERATION_KEY")
 
-async def generate_architecture_diagram(face_recognition_result, iot_data, fingerprint_status):
+async def generate_architecture_diagram():
     """
     Generate an architecture diagram using Azure OpenAI's gpt-image-1 deployment.
     """
     if not AZURE_GPT_TEXT_IMAGE_ENDPOINT or not AZURE_GPT_TEXT_IMAGE_KEY:
         raise EnvironmentError("Missing required Azure GPT Text-to-Image credentials in environment variables.")
     
-    # Prepare input data for the reasoning function
-    input_data = {
-        "face_recognition_result": face_recognition_result,
-        "door_sensor_status": iot_data.get("door_sensor", "unknown"),
-        "motion_sensor_status": iot_data.get("motion_sensor", "unknown"),
-        "fingerprint_status": fingerprint_status
-    }
 
     prompt = (
         "Generate an architecture diagram for a Vehicle Security System. "
         "The system includes the following components: "
-       generate_architecture_diagram
+        "1. IoT Hub to collect data from sensors (door status, motion status, fingerprint status). "
+        "2. Semantic Response powered by Chat-GPT to analyze the data and determine the threat level. "
         "3. GPT-Image-1 to generate architecture diagrams based on the system's state. "
         "Outputs include vehicle locking, trigger_vehicle_alarm, and email alerts triggered by the threat level determined by Semantic Response. "
         "Show the flow of data between these components and highlight the decision-making process."
