@@ -214,10 +214,38 @@ export default function SemanticKernelVehicleSecurityPage() {
             {results.recommendedActions
               ?.filter((action: string) => action) // Filter out empty or falsy values
               .map((action: string, index: number) => (
-                <li key={index}>{action}</li> 
+                <li key={index}>{action}</li>
               ))}
           </ul>
 
+          {results.architectureDiagramGenerated && (
+            <div style={{ marginTop: '20px', textAlign: 'center' }}>
+              <strong
+                style={{
+                  display: 'block',
+                  color: '#4B0082', // Dark purple color
+                  borderBottom: '2px solid #007BFF',
+                  paddingBottom: '10px',
+                  marginTop: '20px',
+                  fontSize: '1.5em',
+                }}
+              >
+                Architecture Diagram
+              </strong>
+              <img
+                src="/architecture_diagram.png" // Path to the image in the public directory
+                alt="Architecture Diagram"
+                style={{
+                  marginTop: '10px',
+                  maxWidth: '100%',
+                  height: 'auto',
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
