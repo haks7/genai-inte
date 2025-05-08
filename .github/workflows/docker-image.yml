@@ -21,12 +21,15 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       
-      - name: Run ESLint
+      # Install dependencies and build the Next.js app
+      - name: Run ESLint and Build Next.js App
         run: |
           cd front-end-nextjs
           npm install
           npm run build
-
+          # Ensure .next directory exists
+          mkdir -p .next
+      
       # Build the Frontend Docker image
       - name: Build Frontend Docker image
         run: docker build -t sumanap/frontend-gen-display:latest ./front-end-nextjs
