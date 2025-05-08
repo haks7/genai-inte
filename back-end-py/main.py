@@ -5,6 +5,10 @@ import os
 
 app = create_app()
 
+@app.route("/")
+def home():
+    return "Hello, Azure Free Tier!"
+
 # Register existing routes
 app.register_blueprint(routes)
 
@@ -12,4 +16,4 @@ app.register_blueprint(routes)
 app.register_blueprint(vehicle_security_routes)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
+        app.run(host="0.0.0.0", port=8000)
