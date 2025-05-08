@@ -4,8 +4,10 @@ import { useState } from 'react';
 import axios from 'axios';
 
 export default function TestPage() {
+  
   const [customQuery, setCustomQuery] = useState(''); // State for custom query
-  const [results, setResults] = useState<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [results, setResults] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedCity, setSelectedCity] = useState('Melbourne'); // Default city
   const [postalCode, setPostalCode] = useState('3000'); // Default postal code
@@ -14,7 +16,7 @@ export default function TestPage() {
   const [error, setError] = useState(''); // State for error messages
 
   const handlePreview = () => {
-    const queryToPreview = customQuery || `Plan my trip efficiently in ${selectedCity}, ${postalCode}.`;
+    const queryToPreview = customQuery || `Plan my trip efficiently in ${selectedCity}, ${selectedCity}.`;
     setPreviewQuery(queryToPreview);
   };
 
@@ -32,7 +34,7 @@ export default function TestPage() {
         query: queryToSubmit,
         city: selectedCity, // Send city as a separate field
         country: selectedCountry,
-        postalCode:selectedCountry, // Send postal code as a separate field
+        postalCode:postalCode, // Send postal code as a separate field
       });
       console.log('Response:', response.data); // Log the response data for debugging
       setResults(response.data);

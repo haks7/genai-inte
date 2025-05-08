@@ -8,6 +8,7 @@ export default function SemanticKernelVehicleSecurityPage() {
   const [doorStatus, setDoorStatus] = useState('');
   const [motionStatus, setMotionStatus] = useState('');
   const [fingerprintStatus, setFingerprintStatus] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

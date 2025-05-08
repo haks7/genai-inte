@@ -17,7 +17,7 @@ export default function TestPage() {
     cityWeather: { city: 'Melbourne', temperature: 22.95, condition: 'overcast clouds' },
   };
 
-  const [results, setResults] = useState(mockResults);
+  const [results] = useState(mockResults);
 
   return (
     <div
