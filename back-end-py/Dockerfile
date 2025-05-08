@@ -4,11 +4,14 @@ FROM python:3.9-slim
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the backend files to the container
-COPY . /app
+# Copy only the requirements file first to leverage Docker caching
+COPY requirements.txt /app/
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the backend files to the container
+COPY . /app
 
 # Expose the port the app runs on
 EXPOSE 8000

@@ -1,5 +1,5 @@
 # Use a lightweight Node.js image
-FROM node:18-alpine
+FROM node:18-alpine AS builder
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -16,8 +16,14 @@ COPY . .
 # Build the Next.js app
 RUN npm run build
 
-# Expose the port the app runs on
-EXPOSE 3000
+# Use a lightweight web server for serving the built app
+FROM nginx:alpine
 
-# Start the Next.js app
-CMD ["npm", "start"]
+# Copy the built app from the builder stage
+COPY --from=builder /app/out /usr/share/nginx/html
+
+# Expose the port the app runs on
+EXPOSE 80
+
+# Start the Nginx server
+CMD ["nginx", "-g", "daemon off;"]
