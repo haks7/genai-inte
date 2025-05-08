@@ -34,9 +34,9 @@ export default function SemanticKernelVehicleSecurityPage() {
       });
 
       setResults(response.data);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error fetching results:', err);
-      setError(err.response?.data?.error || 'An error occurred while processing your request.');
+      setError('An error occurred while processing your request.');
     } finally {
       setLoading(false);
     }
@@ -201,9 +201,9 @@ export default function SemanticKernelVehicleSecurityPage() {
 
           <strong><h2 style={{ color: '#4B0082', borderBottom: '2px solid #007BFF', paddingBottom: '10px', marginTop: '20px' }}>Actions</h2></strong>
           <ul>
-            {results.actions
-              ?.filter((action: any) => action !== null && action !== undefined) // Filter out null or undefined values
-              .map((action: any, index: number) => (
+            {results.actions // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              ?.filter((action: any) => action !== null && action !== undefined)   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              .map((action: any, index: number) => ( // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 <li key={index}>
                   {action.message || 'Unknown action'} {/* Display the message property */}
                 </li>
