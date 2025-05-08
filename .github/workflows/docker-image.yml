@@ -23,6 +23,7 @@ jobs:
       
       - name: Run ESLint
         run: |
+          cd front-end-nextjs
           npm install
           npx eslint 'app/**/*.tsx'
 
