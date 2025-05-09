@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Activate the virtual environment
+if [ -d /home/site/wwwroot/antenv ]; then
+    echo "Activating virtual environment..."
+    source /home/site/wwwroot/antenv/bin/activate
+fi
+
 # Set the Python path to include the application directory
 export PYTHONPATH=/home/site/wwwroot:$PYTHONPATH
 
