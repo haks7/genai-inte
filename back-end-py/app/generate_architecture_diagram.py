@@ -2,10 +2,10 @@ import aiohttp
 import asyncio
 import os
 import base64
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
-# # Load environment variables from .env file
-# load_dotenv()
+# Load environment variables from .env file
+load_dotenv()
 
 AZURE_GPT_TEXT_IMAGE_ENDPOINT = os.getenv("AZURE_OPENAI_IMAGE_GENERATION_ENDPOINT")
 AZURE_GPT_TEXT_IMAGE_KEY = os.getenv("AZURE_OPENAI_IMAGE_GENERATION_KEY")
