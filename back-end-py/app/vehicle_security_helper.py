@@ -5,7 +5,6 @@ from email.mime.multipart import MIMEMultipart
 # from dotenv import load_dotenv
 from app.face_recognition import recognize_face
 from app.iot_simulation import simulate_iot_data
-from app.vehicle_security_kernel import run_vehicle_security_reasoning
 import asyncio
 
 # # Load environment variables from .env file
@@ -54,15 +53,3 @@ def lock_vehicle():
     """Simulate locking the vehicle's engine and wheels."""
     print("Vehicle locked! Engine and wheels are disabled.")
     return {"action": "vehicle_locked", "message": "Vehicle locked. Engine and wheels disabled."}
-
-async def run_security_reasoning(reasoning_prompt, face_message, iot_data, fingerprint_status):
-    """Run the Semantic Kernel reasoning for vehicle security."""
-    try:
-        return await run_vehicle_security_reasoning(
-            reasoning_prompt=reasoning_prompt,
-            face_recognition_result=face_message,
-            iot_data=iot_data,
-            fingerprint_status=fingerprint_status
-        )
-    except Exception as e:
-        print(f"Error in Semantic Kernel reasoning: {e}")

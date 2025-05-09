@@ -5,7 +5,6 @@ from app.vehicle_security_helper import (
     send_alert_email,
     trigger_vehicle_alarm,
     lock_vehicle,
-    run_security_reasoning
 )
 # DO NOT DELETE THIS LINE
 # from app.generate_architecture_diagram import generate_architecture_diagram
