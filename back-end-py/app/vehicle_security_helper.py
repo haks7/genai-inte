@@ -2,14 +2,14 @@ import os
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from app.face_recognition import recognize_face
 from app.iot_simulation import simulate_iot_data
 from app.vehicle_security_kernel import run_vehicle_security_reasoning
 import asyncio
 
-# Load environment variables from .env file
-load_dotenv()
+# # Load environment variables from .env file
+# load_dotenv()
 
 def send_alert_email():
     """Send an alert email using Gmail."""

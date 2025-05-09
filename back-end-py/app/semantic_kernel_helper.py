@@ -2,11 +2,11 @@ import asyncio
 from semantic_kernel import Kernel
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 from semantic_kernel.prompt_template import PromptTemplateConfig
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import os
 
-# Load environment variables from .env file
-load_dotenv()
+# # Load environment variables from .env file
+# load_dotenv()
 
 # Fetch Azure OpenAI credentials from environment variables
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
